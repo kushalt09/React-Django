@@ -1,0 +1,14 @@
+Setting up virtual environment
+    python -m venv env
+    .\env\Scripts\activate
+
+After creating virtual environment, install useful tools from requirements.txt
+    pip install -r .\requirements.txt
+
+Start django-admin
+    django-admin startproject backend
+    Create other app inside backend
+    python manage.py startapp api
+
+For frontend
+npm create vite@latest frontend -- --template react
