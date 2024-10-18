@@ -7,6 +7,7 @@ function Home() {
     const [notes, setNotes] = useState([]);
     const [content, setContent] = useState("");
     const [title, setTitle] = useState("");
+    const [editingId, setEditingId] = useState(null); // State to keep track of the note being edited
 
     useEffect(() => {
         getNotes();
@@ -34,8 +35,16 @@ function Home() {
             .catch((error) => alert(error));
     };
 
-    const createNote = (e) => {
+    const handleNoteSubmit = (e) => {
         e.preventDefault();
+        if (editingId) {
+            updateNote();
+        } else {
+            createNote();
+        }
+    };
+
+    const createNote = () => {
         api
             .post("/api/notes/", { content, title })
             .then((res) => {
@@ -46,16 +55,39 @@ function Home() {
             .catch((err) => alert(err));
     };
 
+    const updateNote = () => {
+        api
+            .put(`/api/notes/update/${editingId}/`, { title, content })
+            .then((res) => {
+                if (res.status === 200) alert("Note updated!");
+                else alert("Failed to update note.");
+                setEditingId(null);
+                getNotes();
+            })
+            .catch((err) => {
+                console.error('Error updating note:', err);
+                alert("Error updating note: " + err.message);
+            });
+    };
+    
+
+    const startEditing = (note) => {
+        setEditingId(note.id);
+        setTitle(note.title);
+        setContent(note.content);
+    };
+
     return (
         <div>
             <div>
                 <h2>Notes</h2>
                 {notes.map((note) => (
-                    <Note note={note} onDelete={deleteNote} key={note.id} />
+                    <Note note={note} onDelete={deleteNote} onEdit={() => startEditing(note)} key={note.id} />
+                    
                 ))}
             </div>
-            <h2>Create a Note</h2>
-            <form onSubmit={createNote}>
+            <h2>{editingId ? 'Edit Note' : 'Create a Note'}</h2>
+            <form onSubmit={handleNoteSubmit}>
                 <label htmlFor="title">Title:</label>
                 <br />
                 <input
@@ -76,7 +108,7 @@ function Home() {
                     onChange={(e) => setContent(e.target.value)}
                 ></textarea>
                 <br />
-                <input type="submit" value="Submit"></input>
+                <input type="submit" value={editingId ? 'Update' : 'Submit'}></input>
             </form>
         </div>
     );

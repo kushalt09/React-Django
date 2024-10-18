@@ -34,3 +34,7 @@ class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+class NoteUpdate(generics.UpdateAPIView):
+    queryset = Note.objects.all()
+    serializer_class = NoteSerializer
